@@ -1,0 +1,8 @@
+[jboss]
+3.110.33.140
+13.233.208.113
+13.233.161.152
+
+[jboss:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=~/.ssh/mj-keypair.pem

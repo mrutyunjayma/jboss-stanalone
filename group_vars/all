@@ -1,0 +1,19 @@
+http_port: 8080
+https_port: 8443
+
+# AWS credentials
+ec2_access_key: AKIAYEDX356KLY44LY52
+ec2_secret_key: c0qUcfaQBtEtfuzbGJNEnCxSBDWXMb7rYf7NTCr/
+ec2_region: ap-south-1
+ec2_zone: ap-south-1a
+ec2_image: ami-03f4878755434977f # Example Ubuntu 22.04 AMI in ap-south-1
+ec2_instance_type: t2.micro
+ec2_keypair: mj-keypair
+ec2_security_group: sg-02580587f35911608
+ec2_instance_count: 3
+ec2_tag: demo
+ec2_tag_name_prefix: jboss
+ec2_hosts: all
+wait_for_port: 22
+
+tower_user_name: admin

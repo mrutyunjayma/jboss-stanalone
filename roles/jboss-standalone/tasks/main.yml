@@ -1,0 +1,75 @@
+---
+- name: Install required packages (Java 11, unzip)
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - unzip
+    - openjdk-11-jdk
+
+- name: Download JBoss 7.1.1.Final
+  get_url:
+    url: http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip
+    dest: /opt/jboss-as-7.1.1.Final.zip
+
+- name: Extract JBoss archive
+  unarchive:
+    src: /opt/jboss-as-7.1.1.Final.zip
+    dest: /usr/share/
+    remote_src: yes
+
+- name: Rename JBoss folder
+  command: mv jboss-as-7.1.1.Final jboss-as
+  args:
+    chdir: /usr/share/
+    creates: /usr/share/jboss-as
+
+- name: Copy standalone.xml configuration
+  template:
+    src: standalone.xml
+    dest: /usr/share/jboss-as/standalone/configuration/
+  notify: restart jboss
+
+- name: Create group 'jboss'
+  group:
+    name: jboss
+
+- name: Create user 'jboss'
+  user:
+    name: jboss
+    group: jboss
+    home: /usr/share/jboss-as
+    shell: /bin/bash
+
+- name: Change ownership of JBoss folder
+  file:
+    path: /usr/share/jboss-as/
+    state: directory
+    owner: jboss
+    group: jboss
+    recurse: yes
+
+- name: Copy init script for JBoss
+  copy:
+    src: jboss-as-standalone.sh
+    dest: /etc/init.d/jboss
+    mode: "0755"
+
+- name: Enable and start JBoss service
+  command: update-rc.d jboss defaults
+  notify: restart jboss
+
+- name: Ensure UFW is installed
+  apt:
+    name: ufw
+    state: present
+
+- name: Allow HTTP and Admin ports via UFW
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "{{ http_port }}"
+    - "{{ https_port }}"

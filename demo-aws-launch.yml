@@ -1,0 +1,41 @@
+---
+- name: Provision instances
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - group_vars/all
+
+  tasks:
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        name: "demo_{{ tower_user_name }}"
+        key_name: "{{ ec2_keypair }}"
+        instance_type: "{{ ec2_instance_type }}"
+        image_id: "{{ ec2_image }}"
+        region: "{{ ec2_region }}"
+        security_groups: ["{{ ec2_security_group }}"]
+        tags:
+          Name: "demo_{{ tower_user_name }}"
+          ansible_group: jboss
+        count: "{{ ec2_instance_count }}"
+        wait: true
+        aws_access_key: "{{ ec2_access_key }}"
+        aws_secret_key: "{{ ec2_secret_key }}"
+      register: ec2
+
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_dns_name }}"
+        port: 22
+        delay: 60
+        timeout: 320
+        state: started
+      loop: "{{ ec2.instances }}"
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip_address }}"
+        groupname: jboss
+      loop: "{{ ec2.instances }}"

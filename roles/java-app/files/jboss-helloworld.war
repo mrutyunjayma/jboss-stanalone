@@ -1,0 +1,7 @@
+cd jboss-standalone/roles/java-app/files
+
+mkdir -p dummy-war/WEB-INF
+echo "Hello from MJ" > dummy-war/index.jsp
+touch dummy-war/WEB-INF/web.xml
+
+jar -cvf jboss-helloworld.war -C dummy-war/ .

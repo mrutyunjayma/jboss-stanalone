@@ -1,0 +1,10 @@
+---
+# Full JBoss Setup and App Deployment Playbook
+
+- name: Deploy JBoss and Java Applications
+  hosts: all
+  become: yes
+
+  roles:
+    - jboss-standalone
+    - java-app
